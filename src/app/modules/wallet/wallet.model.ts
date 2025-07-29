@@ -22,6 +22,7 @@ const walletSchema = new Schema<IWallet>(
   },
   {
     timestamps: true,
+    versionKey: false,
   }
 );
 
