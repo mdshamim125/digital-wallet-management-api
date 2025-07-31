@@ -36,15 +36,6 @@ const transactionSchema = new Schema<ITransaction>(
       enum: Object.values(TransactionStatus),
       default: TransactionStatus.PENDING,
     },
-    bankAccount: {
-      type: String,
-      required: function (this: ITransaction) {
-        return (
-          this.type === TransactionType.BANK_TOP_UP ||
-          this.type === TransactionType.BANK_WITHDRAW
-        );
-      },
-    },
   },
   {
     timestamps: true,

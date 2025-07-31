@@ -6,9 +6,6 @@ export enum TransactionType {
   SEND_MONEY = "send_money", // User → User
   CASH_IN = "cash_in", // Agent → User
   CASH_OUT = "cash_out", // User → Agent
-
-  BANK_TOP_UP = "bank_top_up", // From bank to wallet
-  BANK_WITHDRAW = "bank_withdraw", // From wallet to bank
 }
 
 export enum TransactionStatus {
@@ -24,6 +21,4 @@ export interface ITransaction {
   fee?: number;
   type: TransactionType;
   status: TransactionStatus;
-  timestamp?: Date;
-  bankAccount?: string; // e.g., IBAN / Bank Number for BANK_TOP_UP / BANK_WITHDRAW
 }
