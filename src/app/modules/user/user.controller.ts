@@ -47,22 +47,8 @@ const getAllUsers = catchAsync(
   }
 );
 
-const getWallets = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const wallets = await UserServices.getWallets();
-
-    sendResponse(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: "Wallets fetched successfully",
-      data: wallets,
-    });
-  }
-);
-
 export const UserControllers = {
   createUser,
   updateStatus,
   getAllUsers,
-  getWallets,
 };
