@@ -22,10 +22,10 @@ const transactionSchema = new Schema<ITransaction>(
       required: true,
       min: [0, "Amount must be a positive number"],
     },
-    // fee: {
-    //   type: Number,
-    //   default: 0,
-    // },
+    fee: {
+      type: Number,
+      default: 0,
+    },
     type: {
       type: String,
       enum: Object.values(TransactionType),

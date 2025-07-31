@@ -297,12 +297,21 @@ const cashOut = async (agentId: string, userId: string, amount: number) => {
     from: userId,
     to: agentId,
     amount,
+    fee,
     type: TransactionType.CASH_OUT,
     status: TransactionStatus.COMPLETED,
     timestamp: new Date(),
   });
 
   return transaction;
+};
+
+const getAllTransactions = async () => {
+  const transactions = await Transaction.find();
+  if (!transactions || transactions.length === 0) {
+    throw new AppError(httpStatus.NOT_FOUND, "No transactions found");
+  }
+  return transactions;
 };
 
 export const UserServices = {
@@ -312,4 +321,5 @@ export const UserServices = {
   getWallets,
   cashIn,
   cashOut,
+  getAllTransactions,
 };

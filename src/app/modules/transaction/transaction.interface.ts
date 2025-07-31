@@ -21,7 +21,7 @@ export interface ITransaction {
   from?: Types.ObjectId; // wallet or agent (nullable in bank_top_up)
   to?: Types.ObjectId; // wallet or agent (nullable in bank_withdraw)
   amount: number;
-  // fee?: number;
+  fee?: number;
   type: TransactionType;
   status: TransactionStatus;
   timestamp?: Date;

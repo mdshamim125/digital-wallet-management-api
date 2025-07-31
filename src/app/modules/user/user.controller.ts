@@ -60,6 +60,19 @@ const getWallets = catchAsync(
   }
 );
 
+const getAllTransactions = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const transactions = await UserServices.getAllTransactions();
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Transactions fetched successfully",
+      data: transactions,
+    });
+  }
+);
+
 const cashIn = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id, amount } = req.body;
@@ -92,4 +105,5 @@ export const UserControllers = {
   getWallets,
   cashIn,
   cashOut,
+  getAllTransactions,
 };
