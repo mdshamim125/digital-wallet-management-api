@@ -14,7 +14,7 @@ export const checkAuth =
       const accessToken = req.headers.authorization;
 
       if (!accessToken) {
-        throw new AppError(403, "No Token Received");
+        throw new AppError(httpStatus.FORBIDDEN, "No Token Received");
       }
 
       const verifiedToken = verifyToken(
@@ -22,17 +22,27 @@ export const checkAuth =
         envVars.JWT_ACCESS_SECRET
       ) as JwtPayload;
 
+      if (!verifiedToken) {
+        throw new AppError(httpStatus.FORBIDDEN, "Invalid Token");
+      }
+
+      if (!verifiedToken.email) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Email not found in token");
+      }
+
       const isUserExist = await User.findOne({ email: verifiedToken.email });
 
       if (!isUserExist) {
         throw new AppError(httpStatus.BAD_REQUEST, "User does not exist");
       }
+
       if (isUserExist.userStatus === UserStatus.BLOCKED) {
         throw new AppError(
           httpStatus.BAD_REQUEST,
           `User is ${isUserExist.userStatus}`
         );
       }
+
       if (
         isUserExist.agentStatus === AgentStatus.SUSPENDED &&
         verifiedToken.role === "agent"
