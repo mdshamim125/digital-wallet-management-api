@@ -60,9 +60,36 @@ const getWallets = catchAsync(
   }
 );
 
+const cashIn = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id, amount } = req.body;
+    const agentId = req.user.userId; // assuming you extract agent info from token
+    const result = await UserServices.cashIn(agentId, id, amount);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Cash-in successful,",
+      data: result,
+    });
+  }
+);
+
+const cashOut = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id, amount } = req.body;
+    const agentId = req.user.userId;
+    const result = await UserServices.cashOut(agentId, id, amount);
+    res
+      .status(200)
+      .json({ success: true, message: "Cash-out successful", data: result });
+  }
+);
+
 export const UserControllers = {
   createUser,
   updateStatus,
   getAllUsers,
-  getWallets
+  getWallets,
+  cashIn,
+  cashOut,
 };

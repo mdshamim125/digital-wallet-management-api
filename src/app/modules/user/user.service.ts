@@ -13,6 +13,11 @@ import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
 import { WalletStatus } from "../wallet/wallet.interface";
 import { JwtPayload } from "jsonwebtoken";
+import { Transaction } from "../transaction/transaction.model";
+import {
+  TransactionStatus,
+  TransactionType,
+} from "../transaction/transaction.interface";
 
 const createUser = async (payload: Partial<IUser>) => {
   const session = await User.startSession();
@@ -144,9 +149,167 @@ const getWallets = async () => {
   return wallets;
 };
 
+const cashIn = async (agentId: string, userId: string, amount: number) => {
+  if (!agentId || !userId || amount === undefined) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Missing required parameters");
+  }
+
+  if (amount <= 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Amount must be greater than 0");
+  }
+
+  if (agentId === userId) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Agent cannot cash in to themselves"
+    );
+  }
+
+  const agent = await User.findById(agentId);
+  if (!agent || agent.role !== "agent") {
+    throw new AppError(httpStatus.NOT_FOUND, "Agent not found or invalid role");
+  }
+
+  if (agent.agentStatus !== AgentStatus.APPROVED) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Agent is not approved for cash-in"
+    );
+  }
+
+  const user = await User.findById(userId);
+  if (!user || user.role !== "user") {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found or invalid role");
+  }
+
+  if (user.userStatus !== UserStatus.ACTIVE) {
+    throw new AppError(httpStatus.FORBIDDEN, "User is not active for cash-in");
+  }
+
+  const agentWallet = await Wallet.findOne({ user: agentId });
+  const userWallet = await Wallet.findOne({ user: userId });
+
+  if (!agentWallet) {
+    throw new AppError(httpStatus.NOT_FOUND, "Agent wallet not found");
+  }
+
+  if (agentWallet.status !== WalletStatus.ACTIVE) {
+    throw new AppError(httpStatus.FORBIDDEN, "Agent wallet is not active");
+  }
+
+  if (!userWallet) {
+    throw new AppError(httpStatus.NOT_FOUND, "User wallet not found");
+  }
+
+  if (userWallet.status !== WalletStatus.ACTIVE) {
+    throw new AppError(httpStatus.FORBIDDEN, "User wallet is not active");
+  }
+
+  if (agentWallet.balance < amount) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Insufficient agent balance");
+  }
+
+  // Update balances
+  agentWallet.balance -= amount;
+  userWallet.balance += amount;
+
+  await Promise.all([agentWallet.save(), userWallet.save()]);
+
+  // Create transaction record
+  const transaction = await Transaction.create({
+    from: agentId,
+    to: userId,
+    amount,
+    type: TransactionType.CASH_IN,
+    status: TransactionStatus.COMPLETED,
+  });
+
+  return transaction;
+};
+
+const cashOut = async (agentId: string, userId: string, amount: number) => {
+  if (amount <= 0) throw new AppError(httpStatus.BAD_REQUEST, "Invalid amount");
+  if (!agentId || !userId)
+    throw new AppError(httpStatus.BAD_REQUEST, "Missing required parameters");
+  if (agentId === userId)
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Agent cannot cash out to themselves"
+    );
+
+  const user = await User.findById(userId);
+  const agent = await User.findById(agentId);
+
+  if (!user || user.role !== "user") {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found or invalid role");
+  }
+  if (user.userStatus !== UserStatus.ACTIVE) {
+    throw new AppError(httpStatus.FORBIDDEN, "User is not active for cash-out");
+  }
+
+  if (!agent || agent.role !== "agent") {
+    throw new AppError(httpStatus.NOT_FOUND, "Agent not found or invalid role");
+  }
+  if (agent.agentStatus !== AgentStatus.APPROVED) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Agent is not approved for cash-out"
+    );
+  }
+
+  const userWallet = await Wallet.findOne({ user: userId });
+  const agentWallet = await Wallet.findOne({ user: agentId });
+
+  if (!userWallet || userWallet.status !== WalletStatus.ACTIVE) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "User wallet not found or inactive"
+    );
+  }
+  if (!agentWallet || agentWallet.status !== WalletStatus.ACTIVE) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "Agent wallet not found or inactive"
+    );
+  }
+
+  // Calculate service charge: 20 Taka per 1000
+  const fee = (amount / 1000) * 20;
+  const totalDeduction = amount + fee;
+
+  if (userWallet.balance < totalDeduction) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Insufficient balance for cash-out and service charge"
+    );
+  }
+
+  // Deduct from user's wallet
+  userWallet.balance -= totalDeduction;
+  await userWallet.save();
+
+  // Credit to agent's wallet
+  agentWallet.balance += amount;
+  await agentWallet.save();
+
+  // Record the transaction
+  const transaction = await Transaction.create({
+    from: userId,
+    to: agentId,
+    amount,
+    type: TransactionType.CASH_OUT,
+    status: TransactionStatus.COMPLETED,
+    timestamp: new Date(),
+  });
+
+  return transaction;
+};
+
 export const UserServices = {
   createUser,
   updateStatus,
   getAllUsers,
-  getWallets
+  getWallets,
+  cashIn,
+  cashOut,
 };

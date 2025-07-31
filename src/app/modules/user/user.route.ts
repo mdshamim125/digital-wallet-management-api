@@ -25,38 +25,12 @@ router.post(
 //   UserControllers.getTransactionHistory
 // );
 
-// // Agent-specific routes
-// router.post(
-//   "/agent/cash-in",
-//   checkAuth(Role.AGENT),
-//   UserControllers.agentCashIn
-// );
-// router.post(
-//   "/agent/cash-out",
-//   checkAuth(Role.AGENT),
-//   UserControllers.agentCashOut
-// );
-// // router.get(
-// //   "/agent/commissions",
-// //   checkAuth(Role.AGENT),
-// //   UserControllers.getAgentCommissionHistory
-// // );
+// Agent-specific routes
+router.post("/cash-in", checkAuth(Role.AGENT), UserControllers.cashIn);
+router.post("/cash-out", checkAuth(Role.AGENT), UserControllers.cashOut);
 
-// // Admin-specific routes
-// router.get("/admin/users", checkAuth(Role.ADMIN), UserControllers.getAllUsers);
-// router.get(
-//   "/admin/wallets",
-//   checkAuth(Role.ADMIN),
-//   UserControllers.getAllWallets
-// );
-// router.get(
-//   "/admin/transactions",
-//   checkAuth(Role.ADMIN),
-//   UserControllers.getAllTransactions
-// );
-
+// Admin-specific routes
 router.get("/get-users", checkAuth(Role.ADMIN), UserControllers.getAllUsers);
-
 router.get("/get-wallets", checkAuth(Role.ADMIN), UserControllers.getWallets);
 
 router.patch(
