@@ -12,7 +12,7 @@ router.post(
 );
 
 // // User-specific routes
-// router.post("/add-money", checkAuth(Role.USER), UserControllers.topUpWallet);
+router.post("/add-money", checkAuth(Role.USER), UserControllers.addMoneyByUser);
 router.post(
   "/withdraw",
   checkAuth(Role.USER),

@@ -401,6 +401,75 @@ const withdrawMoneyByUser = async (
   return transaction;
 };
 
+const addMoneyByUser = async (
+  userId: string,
+  agentId: string,
+  amount: number
+) => {
+  if (!userId || !agentId || amount === undefined) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Missing required parameters");
+  }
+  if (amount <= 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Amount must be greater than 0");
+  }
+  if (userId === agentId) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "User cannot add money to themselves"
+    );
+  }
+  const user = await User.findById(userId);
+  if (!user || user.role !== "user") {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found or invalid role");
+  }
+  if (user.userStatus !== UserStatus.ACTIVE) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "User is not active for adding money"
+    );
+  }
+  const agent = await User.findById(agentId);
+  if (!agent || agent.role !== "agent") {
+    throw new AppError(httpStatus.NOT_FOUND, "Agent not found or invalid role");
+  }
+  if (agent.agentStatus !== AgentStatus.APPROVED) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Agent is not approved for adding money"
+    );
+  }
+  const userWallet = await Wallet.findOne({ user: userId });
+  const agentWallet = await Wallet.findOne({ user: agentId });
+  if (!userWallet) {
+    throw new AppError(httpStatus.NOT_FOUND, "User wallet not found");
+  }
+  if (userWallet.status !== WalletStatus.ACTIVE) {
+    throw new AppError(httpStatus.FORBIDDEN, "User wallet is not active");
+  }
+  if (!agentWallet) {
+    throw new AppError(httpStatus.NOT_FOUND, "Agent wallet not found");
+  }
+  if (agentWallet.status !== WalletStatus.ACTIVE) {
+    throw new AppError(httpStatus.FORBIDDEN, "Agent wallet is not active");
+  }
+  if (agentWallet.balance < amount) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Insufficient agent balance");
+  }
+  // Update balances
+  agentWallet.balance -= amount;
+  userWallet.balance += amount;
+  await Promise.all([agentWallet.save(), userWallet.save()]);
+    // Create transaction record
+  const transaction = await Transaction.create({
+    from: agentId,
+    to: userId,
+    amount,
+    type: TransactionType.ADD_MONEY,
+    status: TransactionStatus.COMPLETED,
+  });
+  return transaction;
+};
+
 const sendMoney = async (from: string, to: string, amount: number) => {
   if (!from || !to || amount === undefined) {
     throw new AppError(httpStatus.BAD_REQUEST, "Missing required parameters");
@@ -525,4 +594,5 @@ export const UserServices = {
   withdrawMoneyByUser,
   sendMoney,
   getTransactionHistory,
+  addMoneyByUser
 };

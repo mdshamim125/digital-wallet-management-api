@@ -130,6 +130,20 @@ const sendMoney = catchAsync(
   }
 );
 
+const addMoneyByUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id: from, amount } = req.body;
+    const userId = req.user.userId;
+    const result = await UserServices.addMoneyByUser(userId, from, amount);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Money added successfully",
+      data: result,
+    });
+  }
+);
+
 const getTransactionHistory = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user.userId;
@@ -155,4 +169,5 @@ export const UserControllers = {
   withdrawMoneyByUser,
   sendMoney,
   getTransactionHistory,
+  addMoneyByUser,
 };
