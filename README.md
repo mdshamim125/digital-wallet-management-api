@@ -1,6 +1,6 @@
 Here's a complete and professional `README.md` file tailored to your project:
 
-```md
+````md
 # 💰 Digital Wallet API
 
 A secure and scalable digital wallet backend system (inspired by Bkash/Nagad) built with **Node.js**, **Express.js**, and **MongoDB**. This API enables users, agents, and admins to interact with a digital wallet system to perform core financial operations such as adding money, withdrawing, sending funds, and managing users and wallets.
@@ -29,26 +29,6 @@ This backend system includes:
 - **TypeScript** (optional if applicable)
 - **Bcrypt** for password hashing
 
----
-
-## 🏗️ Project Structure
-```
-
-src/
-├── modules/
-│ ├── auth/
-│ ├── user/
-│ ├── wallet/
-│ └── transaction/
-├── middlewares/
-├── config/
-├── utils/
-├── app.ts / main.ts
-
-````
-
----
-
 ## 🔧 Setup & Installation
 
 ### 1. Clone the repository
@@ -56,6 +36,7 @@ src/
 ```bash
 git clone https://github.com/mdshamim125/digital-wallet-management-api.git
 cd digital-wallet-management-api
+```
 ````
 
 ### 2. Install dependencies
