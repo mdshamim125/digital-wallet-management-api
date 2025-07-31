@@ -314,6 +314,93 @@ const getAllTransactions = async () => {
   return transactions;
 };
 
+const withdrawMoneyByUser = async (
+  userId: string,
+  agentId: string,
+  amount: number
+) => {
+  if (!userId || !agentId || amount === undefined) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Missing required parameters");
+  }
+
+  if (amount <= 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Amount must be greater than 0");
+  }
+
+  const user = await User.findById(userId);
+  if (!user || user.role !== "user") {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found or invalid role");
+  }
+
+  if (user.userStatus !== UserStatus.ACTIVE) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "User is not active for withdrawal"
+    );
+  }
+
+  const agent = await User.findById(agentId);
+  if (!agent || agent.role !== "agent") {
+    throw new AppError(httpStatus.NOT_FOUND, "Agent not found or invalid role");
+  }
+
+  if (agent.agentStatus !== AgentStatus.APPROVED) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Agent is not approved for withdrawal"
+    );
+  }
+
+  const userWallet = await Wallet.findOne({ user: userId });
+  const agentWallet = await Wallet.findOne({ user: agentId });
+
+  if (!userWallet) {
+    throw new AppError(httpStatus.NOT_FOUND, "User wallet not found");
+  }
+
+  if (userWallet.status !== WalletStatus.ACTIVE) {
+    throw new AppError(httpStatus.FORBIDDEN, "User wallet is not active");
+  }
+
+  if (!agentWallet) {
+    throw new AppError(httpStatus.NOT_FOUND, "Agent wallet not found");
+  }
+
+  if (agentWallet.status !== WalletStatus.ACTIVE) {
+    throw new AppError(httpStatus.FORBIDDEN, "Agent wallet is not active");
+  }
+
+  if (userWallet.balance < amount) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Insufficient user balance");
+  }
+
+  // Update balances
+  const fee = (amount / 1000) * 20; // 20 Taka per 1000
+  const totalDeduction = amount + fee;
+  if (userWallet.balance < totalDeduction) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Insufficient balance for withdrawal and service charge"
+    );
+  }
+  userWallet.balance -= totalDeduction;
+  agentWallet.balance += amount;
+
+  await Promise.all([userWallet.save(), agentWallet.save()]);
+
+  // Create transaction record
+  const transaction = await Transaction.create({
+    from: userId,
+    to: agentId,
+    amount,
+    fee,
+    type: TransactionType.WITHDRAW,
+    status: TransactionStatus.COMPLETED,
+  });
+
+  return transaction;
+};
+
 export const UserServices = {
   createUser,
   updateStatus,
@@ -322,4 +409,5 @@ export const UserServices = {
   cashIn,
   cashOut,
   getAllTransactions,
+  withdrawMoneyByUser,
 };

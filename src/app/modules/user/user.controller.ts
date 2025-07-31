@@ -98,6 +98,20 @@ const cashOut = catchAsync(
   }
 );
 
+const withdrawMoneyByUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id: agentId, amount } = req.body;
+    const userId = req.user.userId;
+    const result = await UserServices.withdrawMoneyByUser(userId, agentId, amount);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Withdrawal successful",
+      data: result,
+    });
+  }
+);
+
 export const UserControllers = {
   createUser,
   updateStatus,
@@ -106,4 +120,5 @@ export const UserControllers = {
   cashIn,
   cashOut,
   getAllTransactions,
+  withdrawMoneyByUser,
 };

@@ -13,11 +13,11 @@ router.post(
 
 // // User-specific routes
 // router.post("/add-money", checkAuth(Role.USER), UserControllers.topUpWallet);
-// router.post(
-//   "/withdraw",
-//   checkAuth(Role.USER),
-//   UserControllers.withdrawFromWallet
-// );
+router.post(
+  "/withdraw",
+  checkAuth(Role.USER),
+  UserControllers.withdrawMoneyByUser
+);
 // router.post("/send-money", checkAuth(Role.USER), UserControllers.sendMoney);
 // router.get(
 //   "/transactions",
