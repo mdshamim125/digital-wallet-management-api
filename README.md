@@ -1,4 +1,3 @@
-Here's a complete and professional `README.md` file tailored to your project:
 
 ````md
 # 💰 Digital Wallet API
