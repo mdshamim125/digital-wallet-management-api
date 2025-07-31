@@ -130,6 +130,20 @@ const sendMoney = catchAsync(
   }
 );
 
+const getTransactionHistory = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user.userId;
+    const transactions = await UserServices.getTransactionHistory(userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Transaction history fetched successfully",
+      data: transactions,
+    });
+  }
+);
+
 export const UserControllers = {
   createUser,
   updateStatus,
@@ -140,4 +154,5 @@ export const UserControllers = {
   getAllTransactions,
   withdrawMoneyByUser,
   sendMoney,
+  getTransactionHistory,
 };

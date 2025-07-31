@@ -484,6 +484,36 @@ const sendMoney = async (from: string, to: string, amount: number) => {
   return transaction;
 };
 
+const getTransactionHistory = async (id: string) => {
+  if (!id) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User ID is required");
+  }
+
+  const user = await User.findById(id);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+  if (user.role !== "user" && user.role !== "agent") {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Only users and agents have transaction history"
+    );
+  }
+
+  const transactions = await Transaction.find({
+    $or: [{ from: id }, { to: id }],
+  }).sort({ createdAt: -1 });
+
+  if (!transactions || transactions.length === 0) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "No transactions found for this user"
+    );
+  }
+
+  return transactions;
+};
+
 export const UserServices = {
   createUser,
   updateStatus,
@@ -494,4 +524,5 @@ export const UserServices = {
   getAllTransactions,
   withdrawMoneyByUser,
   sendMoney,
+  getTransactionHistory,
 };
