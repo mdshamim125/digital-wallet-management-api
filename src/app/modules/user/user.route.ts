@@ -18,7 +18,7 @@ router.post(
   checkAuth(Role.USER),
   UserControllers.withdrawMoneyByUser
 );
-// router.post("/send-money", checkAuth(Role.USER), UserControllers.sendMoney);
+router.post("/send-money", checkAuth(Role.USER), UserControllers.sendMoney);
 // router.get(
 //   "/transactions",
 //   checkAuth(Role.USER),

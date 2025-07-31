@@ -401,6 +401,89 @@ const withdrawMoneyByUser = async (
   return transaction;
 };
 
+const sendMoney = async (from: string, to: string, amount: number) => {
+  if (!from || !to || amount === undefined) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Missing required parameters");
+  }
+
+  if (amount <= 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Amount must be greater than 0");
+  }
+
+  if (from === to) {
+    throw new AppError(httpStatus.FORBIDDEN, "Cannot send money to self");
+  }
+
+  const sender = await User.findById(from);
+  const receiver = await User.findById(to);
+
+  if (!sender || sender.role !== "user") {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "Sender not found or invalid role"
+    );
+  }
+
+  if (sender.userStatus !== UserStatus.ACTIVE) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Sender is not active for sending money"
+    );
+  }
+
+  if (!receiver || receiver.role !== "user") {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "Receiver not found or invalid role"
+    );
+  }
+
+  if (receiver.userStatus !== UserStatus.ACTIVE) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Receiver is not active for receiving money"
+    );
+  }
+
+  const senderWallet = await Wallet.findOne({ user: from });
+  const receiverWallet = await Wallet.findOne({ user: to });
+
+  if (!senderWallet || senderWallet.status !== WalletStatus.ACTIVE) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "Sender wallet not found or inactive"
+    );
+  }
+
+  if (!receiverWallet || receiverWallet.status !== WalletStatus.ACTIVE) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "Receiver wallet not found or inactive"
+    );
+  }
+
+  if (senderWallet.balance < amount) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Insufficient sender balance");
+  }
+
+  // Update balances
+  senderWallet.balance -= amount;
+  receiverWallet.balance += amount;
+
+  await Promise.all([senderWallet.save(), receiverWallet.save()]);
+
+  // Create transaction record
+  const transaction = await Transaction.create({
+    from,
+    to,
+    amount,
+    type: TransactionType.SEND_MONEY,
+    status: TransactionStatus.COMPLETED,
+  });
+
+  return transaction;
+};
+
 export const UserServices = {
   createUser,
   updateStatus,
@@ -410,4 +493,5 @@ export const UserServices = {
   cashOut,
   getAllTransactions,
   withdrawMoneyByUser,
+  sendMoney,
 };
