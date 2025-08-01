@@ -1,0 +1,325 @@
+{
+  "info": {
+    "_postman_id": "0d33d0b7-7ca7-4db4-aff9-b8a1aad0341e",
+    "name": "Digital Wallet API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+    "_exporter_id": "46078681"
+  },
+  "item": [
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "createUser",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Md Ripon\",\r\n    \"email\": \"mdsr9511@gmail.com\",\r\n    \"password\": \"12345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "http://localhost:5000/api/v1/user/register"
+          },
+          "response": []
+        },
+        {
+          "name": "updateStatus",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODg3YmRmMjY0ZjEzNWE4YjE1MGE1MjMiLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1Mzg4MDA1MSwiZXhwIjoxNzU0MDUyODUxfQ.2IDqWuWZI0JdIAbwQvirRTG-OQ-P_r3-Dtna0pgUcxk",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userStatus\" : \"active\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "http://localhost:5000/api/v1/user/status-update/68886b3332923dee1492f833"
+          },
+          "response": []
+        },
+        {
+          "name": "getAllUsers",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODg3YmRmMjY0ZjEzNWE4YjE1MGE1MjMiLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1Mzg5NTQwMywiZXhwIjoxNzU0MDY4MjAzfQ.u1xjAmUyckp9bhUh8CqbZripZ02GNQqz9lflKpDwU3E",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"target\" : \"user\",\r\n    \"action\" : \"blocked\"\r\n}"
+            },
+            "url": "http://localhost:5000/api/v1/user/get-users"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\" : \"cse12005038brur@gmail.com\",\r\n    \"password\" :\"12345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "https://digital-wallet-backend-lyart.vercel.app/api/v1/auth/login"
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\" : \"mdsr9510@gmail.com\",\r\n    \"password\" :\"12345678\"\r\n}"
+            },
+            "url": "http://localhost:5000/api/v1/auth/logout"
+          },
+          "response": []
+        },
+        {
+          "name": "refreshToken",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODg3YmRmMjY0ZjEzNWE4YjE1MGE1MjMiLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1Mzg5NTQwMywiZXhwIjoxNzU0MDY4MjAzfQ.u1xjAmUyckp9bhUh8CqbZripZ02GNQqz9lflKpDwU3E",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": "http://localhost:5000/api/v1/auth/refresh-token"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "transaction",
+      "item": [
+        {
+          "name": "getAllTransactions",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODg3YmRmMjY0ZjEzNWE4YjE1MGE1MjMiLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1Mzg5NTQwMywiZXhwIjoxNzU0MDY4MjAzfQ.u1xjAmUyckp9bhUh8CqbZripZ02GNQqz9lflKpDwU3E",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": \"68886b3332923dee1492f833\",\r\n    \"amount\" : 1000\r\n}"
+            },
+            "url": "http://localhost:5000/api/v1/transaction/all-transactions"
+          },
+          "response": []
+        },
+        {
+          "name": "cashIn",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODhhYzE5NmFkZGYxODRjNzM4NTZkYTkiLCJlbWFpbCI6ImNzZTEyMDA1MDM4YnJ1ckBnbWFpbC5jb20iLCJyb2xlIjoiYWdlbnQiLCJpYXQiOjE3NTM5MjgwMTEsImV4cCI6MTc1NDEwMDgxMX0.Kvl6bbJDmqgiDc7bmJZhkBE_S0Zi2S_9uRnvdHSdzmM",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": \"68886b3332923dee1492f833\",\r\n    \"amount\" : 5500\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "http://localhost:5000/api/v1/user/cash-in"
+          },
+          "response": []
+        },
+        {
+          "name": "addMoneyByUser",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODhhYzE5NmFkZGYxODRjNzM4NTZkYTkiLCJlbWFpbCI6ImNzZTEyMDA1MDM4YnJ1ckBnbWFpbC5jb20iLCJyb2xlIjoiYWdlbnQiLCJpYXQiOjE3NTM5MjgwMTEsImV4cCI6MTc1NDEwMDgxMX0.Kvl6bbJDmqgiDc7bmJZhkBE_S0Zi2S_9uRnvdHSdzmM",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": \"68886b3332923dee1492f833\",\r\n    \"amount\" : 5500\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "http://localhost:5000/api/v1/user/cash-in"
+          },
+          "response": []
+        },
+        {
+          "name": "cashOut",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODhhYzE5NmFkZGYxODRjNzM4NTZkYTkiLCJlbWFpbCI6ImNzZTEyMDA1MDM4YnJ1ckBnbWFpbC5jb20iLCJyb2xlIjoiYWdlbnQiLCJpYXQiOjE3NTM5MjgwMTEsImV4cCI6MTc1NDEwMDgxMX0.Kvl6bbJDmqgiDc7bmJZhkBE_S0Zi2S_9uRnvdHSdzmM",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": \"68886b3332923dee1492f833\",\r\n    \"amount\" : 4000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "http://localhost:5000/api/v1/user/cash-out"
+          },
+          "response": []
+        },
+        {
+          "name": "withdrawMoneyByUser",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODg4NmIzMzMyOTIzZGVlMTQ5MmY4MzMiLCJlbWFpbCI6Im1kc3I5NTEwQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzUzOTM5MTgzLCJleHAiOjE3NTQxMTE5ODN9.0dTjMjmQVFZrLuQN2zdmQOyjNqOXLUAcw5K5O2MtA5c",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": \"688ac1b5addf184c73856db0\",\r\n    \"amount\" : 100\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "http://localhost:5000/api/v1/transaction/withdraw"
+          },
+          "response": []
+        },
+        {
+          "name": "sendMoney",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODg4NmIzMzMyOTIzZGVlMTQ5MmY4MzMiLCJlbWFpbCI6Im1kc3I5NTEwQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzUzOTM5MTgzLCJleHAiOjE3NTQxMTE5ODN9.0dTjMjmQVFZrLuQN2zdmQOyjNqOXLUAcw5K5O2MtA5c",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": \"688ac16baddf184c73856da3\",\r\n    \"amount\" : 44\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "http://localhost:5000/api/v1/user/send-money"
+          },
+          "response": []
+        },
+        {
+          "name": "getTransactionHistory",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODg4NmIzMzMyOTIzZGVlMTQ5MmY4MzMiLCJlbWFpbCI6Im1kc3I5NTEwQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzUzOTM5MTgzLCJleHAiOjE3NTQxMTE5ODN9.0dTjMjmQVFZrLuQN2zdmQOyjNqOXLUAcw5K5O2MtA5c",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": \"688ac1b5addf184c73856db0\",\r\n    \"amount\" : 2000\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "http://localhost:5000/api/v1/user/withdraw"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "wallet",
+      "item": [
+        {
+          "name": "getWallets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODg3YmRmMjY0ZjEzNWE4YjE1MGE1MjMiLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1Mzg5NTQwMywiZXhwIjoxNzU0MDY4MjAzfQ.u1xjAmUyckp9bhUh8CqbZripZ02GNQqz9lflKpDwU3E",
+                "type": "text"
+              }
+            ],
+            "url": "http://localhost:5000/api/v1/wallet/get-wallets"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
