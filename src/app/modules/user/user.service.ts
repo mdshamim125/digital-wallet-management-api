@@ -137,8 +137,44 @@ const getAllUsers = async () => {
   return users;
 };
 
+const getMe = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+  return {
+    data: user,
+  };
+};
+
+const getSingleUser = async (id: string) => {
+  const user = await User.findById(id).select("-password");
+  return {
+    data: user,
+  };
+};
+
+const updateMe = async (payload: Partial<IUser>, decodedToken: JwtPayload) => {
+  const ifUserExist = await User.findOne({ email: decodedToken.email });
+
+  if (!ifUserExist) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const newUpdatedUser = await User.findOneAndUpdate(
+    { email: decodedToken.email },
+    payload,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  return newUpdatedUser;
+};
+
 export const UserServices = {
   createUser,
   updateStatus,
   getAllUsers,
+  getMe,
+  getSingleUser,
+  updateMe,
 };
