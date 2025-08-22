@@ -19,7 +19,7 @@ const createUser = async (payload: Partial<IUser>) => {
   try {
     session.startTransaction();
 
-    const { email, password, ...rest } = payload;
+    const { email, password, role, ...rest } = payload;
 
     const isUserExist = await User.findOne({ email }).session(session);
     if (isUserExist) {
@@ -41,7 +41,9 @@ const createUser = async (payload: Partial<IUser>) => {
         {
           email,
           password: hashedPassword,
-          agentStatus: AgentStatus.SUSPENDED,
+          role: role ?? "user",
+          agentStatus:
+            role === "user" ? AgentStatus.SUSPENDED : AgentStatus.APPROVED,
           auths: [authProvider],
           ...rest,
         },
