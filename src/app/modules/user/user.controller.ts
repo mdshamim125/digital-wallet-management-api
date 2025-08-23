@@ -64,20 +64,19 @@ const getMe = catchAsync(
 
 const getSingleUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const id = req.params.id;
+    const id = req.params.email;
     const result = await UserServices.getSingleUser(id);
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,
       message: "User Retrieved Successfully",
-      data: result.data,
+      data: result?.data || null,
     });
   }
 );
 
 const updateMe = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-
     const verifiedToken = req.user;
 
     const payload = req.body;

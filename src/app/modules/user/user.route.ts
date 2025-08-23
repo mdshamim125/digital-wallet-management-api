@@ -22,8 +22,16 @@ router.patch(
 );
 
 // Admin-specific routes
-router.get("/all-users", checkAuth(Role.ADMIN), UserControllers.getAllUsers);
-router.get("/:id", checkAuth(Role.ADMIN), UserControllers.getSingleUser);
+router.get(
+  "/all-users",
+  checkAuth(...Object.values(Role)),
+  UserControllers.getAllUsers
+);
+router.get(
+  "/:email",
+  checkAuth(...Object.values(Role)),
+  UserControllers.getSingleUser
+);
 
 router.patch(
   "/status-update/:id",

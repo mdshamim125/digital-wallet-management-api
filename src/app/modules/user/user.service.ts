@@ -130,7 +130,9 @@ const updateStatus = async (id: string, payload: JwtPayload) => {
 };
 
 const getAllUsers = async () => {
-  const users = await User.find().select("-password");
+  const users = await User.find().select(
+    "-password -auths -userStatus -agentStatus"
+  );
   if (!users || users.length === 0) {
     throw new AppError(httpStatus.NOT_FOUND, "No users found");
   }
@@ -144,11 +146,21 @@ const getMe = async (userId: string) => {
   };
 };
 
-const getSingleUser = async (id: string) => {
-  const user = await User.findById(id).select("-password");
-  return {
-    data: user,
-  };
+const getSingleUser = async (email: string) => {
+  const user = await User.findOne({ email })
+    .select("_id name role email")
+    .lean(); // returns plain JS object, not mongoose document
+
+  if (user) {
+    return {
+      data: {
+        id: user._id,
+        name: user.name,
+        role: user.role,
+        email: user.email,
+      },
+    };
+  }
 };
 
 const updateMe = async (payload: Partial<IUser>, decodedToken: JwtPayload) => {

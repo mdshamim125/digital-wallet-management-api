@@ -180,6 +180,7 @@ const withdrawMoneyByUser = async (
   agentId: string,
   amount: number
 ) => {
+  // console.log(userId, agentId, amount);
   if (!userId || !agentId || amount === undefined) {
     throw new AppError(httpStatus.BAD_REQUEST, "Missing required parameters");
   }
