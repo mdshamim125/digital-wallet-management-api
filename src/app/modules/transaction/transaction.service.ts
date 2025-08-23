@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import AppError from "../../errorHelpers/AppError";
 import { Wallet } from "../wallet/wallet.model";
 import httpStatus from "http-status-codes";
@@ -167,7 +168,7 @@ const cashOut = async (agentId: string, userId: string, amount: number) => {
 
   return transaction;
 };
-
+//admin
 export const getAllTransactions = async (query: Record<string, string>) => {
   // Initialize the query builder
   const qb = new QueryBuilder(Transaction.find(), query);
@@ -432,7 +433,39 @@ const sendMoney = async (from: string, to: string, amount: number) => {
   return transaction;
 };
 
-const getTransactionHistory = async (id: string) => {
+// const getTransactionHistory = async (id: string) => {
+//   if (!id) {
+//     throw new AppError(httpStatus.BAD_REQUEST, "User ID is required");
+//   }
+
+//   const user = await User.findById(id);
+//   if (!user) {
+//     throw new AppError(httpStatus.NOT_FOUND, "User not found");
+//   }
+//   if (user.role !== "user" && user.role !== "agent") {
+//     throw new AppError(
+//       httpStatus.FORBIDDEN,
+//       "Only users and agents have transaction history"
+//     );
+//   }
+
+//   const transactions = await Transaction.find({
+//     $or: [{ from: id }, { to: id }],
+//   }).sort({ createdAt: -1 });
+
+//   if (!transactions || transactions.length === 0) {
+//     throw new AppError(
+//       httpStatus.NOT_FOUND,
+//       "No transactions found for this user"
+//     );
+//   }
+
+//   return transactions;
+// };
+
+const getTransactionHistory = async ( id: string,
+  role: string,
+  query: Record<string, any>) => {
   if (!id) {
     throw new AppError(httpStatus.BAD_REQUEST, "User ID is required");
   }
@@ -448,19 +481,19 @@ const getTransactionHistory = async (id: string) => {
     );
   }
 
-  const transactions = await Transaction.find({
+  // base query
+  const baseQuery = Transaction.find({
     $or: [{ from: id }, { to: id }],
   }).sort({ createdAt: -1 });
 
-  if (!transactions || transactions.length === 0) {
-    throw new AppError(
-      httpStatus.NOT_FOUND,
-      "No transactions found for this user"
-    );
-  }
+  // apply only pagination
+  const qb = new QueryBuilder(baseQuery, query).paginate();
+  const transactions = await qb.build();
+  const meta = await qb.getMeta();
 
-  return transactions;
+  return { meta, transactions };
 };
+
 
 export const TransactionServices = {
   cashIn,

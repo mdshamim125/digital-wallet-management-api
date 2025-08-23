@@ -22,3 +22,11 @@ export interface ITransaction {
   type: TransactionType;
   status: TransactionStatus;
 }
+
+export interface TransactionQuery {
+  page?: number;
+  limit?: number;
+  type?: "credit" | "debit";
+  startDate?: string;
+  endDate?: string;
+}

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
@@ -96,18 +97,25 @@ const addMoneyByUser = catchAsync(
   }
 );
 
+//for agent
 const getTransactionHistory = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user.userId;
-    const transactions = await TransactionServices.getTransactionHistory(
-      userId
+    const role = req.user.role;
+    const query = req.query as Record<string, any>;
+
+    const data = await TransactionServices.getTransactionHistory(
+      userId,
+      role,
+      query
     );
 
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
       message: "Transaction history fetched successfully",
-      data: transactions,
+      meta: data.meta,
+      data: data.transactions,
     });
   }
 );
