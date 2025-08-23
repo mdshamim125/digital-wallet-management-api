@@ -78,7 +78,7 @@ const getSingleUser = catchAsync(
 const updateMe = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const verifiedToken = req.user;
-
+// console.log(req.body);
     const payload = req.body;
     const user = await UserServices.updateMe(
       payload,

@@ -39,7 +39,14 @@ export const updateUserZodSchema = z.object({
     .optional(),
   password: z
     .string({ invalid_type_error: "Password must be a string" })
-    .min(8, { message: "Password must be at least 8 digits long." })
+    .min(5, { message: "Password must be at least 5 digits long." })
+    .regex(/^\d+$/, {
+      message: "Password must contain only numbers.",
+    })
+    .optional(),
+  oldPassword: z
+    .string({ invalid_type_error: "Password must be a string" })
+    .min(5, { message: "Password must be at least 5 digits long." })
     .regex(/^\d+$/, {
       message: "Password must contain only numbers.",
     })

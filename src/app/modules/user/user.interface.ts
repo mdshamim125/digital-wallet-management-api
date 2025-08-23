@@ -21,6 +21,10 @@ export enum AgentStatus {
   SUSPENDED = "suspended",
 }
 
+export interface UpdateUserPayload extends Partial<IUser> {
+  oldPassword?: string;
+}
+
 export interface IUser {
   _id?: Types.ObjectId;
   name: string;

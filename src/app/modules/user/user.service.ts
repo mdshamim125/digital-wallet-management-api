@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
 import { Wallet } from "../wallet/wallet.model";
@@ -5,6 +7,7 @@ import {
   AgentStatus,
   IAuthProvider,
   IUser,
+  UpdateUserPayload,
   UserStatus,
 } from "./user.interface";
 import { User } from "./user.model";
@@ -130,9 +133,7 @@ const updateStatus = async (id: string, payload: JwtPayload) => {
 };
 
 const getAllUsers = async () => {
-  const users = await User.find().select(
-    "-password -auths -userStatus -agentStatus"
-  );
+  const users = await User.find().select("-password -auths");
   if (!users || users.length === 0) {
     throw new AppError(httpStatus.NOT_FOUND, "No users found");
   }
@@ -163,23 +164,52 @@ const getSingleUser = async (email: string) => {
   }
 };
 
-const updateMe = async (payload: Partial<IUser>, decodedToken: JwtPayload) => {
-  const ifUserExist = await User.findOne({ email: decodedToken.email });
-
-  if (!ifUserExist) {
+const updateMe = async (
+  payload: UpdateUserPayload,
+  decodedToken: JwtPayload
+) => {
+  const user = await User.findOne({ email: decodedToken.email });
+  if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  const newUpdatedUser = await User.findOneAndUpdate(
-    { email: decodedToken.email },
-    payload,
-    {
-      new: true,
-      runValidators: true,
+  // console.log(payload);
+  // If password is being changed
+  if (payload.password) {
+    if (!payload.oldPassword) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "Old password is required to change password"
+      );
     }
-  );
 
-  return newUpdatedUser;
+    const isOldPasswordMatch = await bcryptjs.compare(
+      payload.oldPassword,
+      user.password
+    );
+    if (!isOldPasswordMatch) {
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        "Old Password does not match"
+      );
+    }
+
+    // Hash the new password
+    user.password = await bcryptjs.hash(
+      payload.password,
+      Number(envVars.BCRYPT_SALT_ROUND)
+    );
+  }
+
+  // Update other fields
+  Object.keys(payload).forEach((key) => {
+    if (key !== "password" && key !== "oldPassword") {
+      (user as any)[key] = (payload as any)[key];
+    }
+  });
+
+  await user.save();
+  return user;
 };
 
 export const UserServices = {
