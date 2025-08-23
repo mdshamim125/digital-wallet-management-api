@@ -9,6 +9,7 @@ import {
 } from "../transaction/transaction.interface";
 import { User } from "../user/user.model";
 import { AgentStatus, UserStatus } from "../user/user.interface";
+import { QueryBuilder } from "../../utils/QueryBuilder";
 
 const cashIn = async (agentId: string, userId: string, amount: number) => {
   if (!agentId || !userId || amount === undefined) {
@@ -167,12 +168,28 @@ const cashOut = async (agentId: string, userId: string, amount: number) => {
   return transaction;
 };
 
-const getAllTransactions = async () => {
-  const transactions = await Transaction.find();
-  if (!transactions || transactions.length === 0) {
-    throw new AppError(httpStatus.NOT_FOUND, "No transactions found");
-  }
-  return transactions;
+export const getAllTransactions = async (query: Record<string, string>) => {
+  // Initialize the query builder
+  const qb = new QueryBuilder(Transaction.find(), query);
+
+  // Build the query: filter, search, sort, paginate
+  qb.filter()
+    .search(["from", "to", "type", "status", "amount", "fee"])
+    .sort()
+    .paginate();
+
+  // Execute the query
+  const transactions = await qb.build();
+
+  // Get pagination meta
+  const meta = await qb.getMeta();
+
+  // // Throw error if no transactions
+  // if (!transactions || transactions.length === 0) {
+  //   throw new AppError("No transactions found", 404);
+  // }
+
+  return { data: transactions, meta };
 };
 
 const withdrawMoneyByUser = async (

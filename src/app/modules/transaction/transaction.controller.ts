@@ -7,7 +7,10 @@ import { TransactionServices } from "./transaction.service";
 
 const getAllTransactions = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const transactions = await TransactionServices.getAllTransactions();
+    const query = req.query;
+    const transactions = await TransactionServices.getAllTransactions(
+      query as Record<string, string>
+    );
 
     sendResponse(res, {
       success: true,
