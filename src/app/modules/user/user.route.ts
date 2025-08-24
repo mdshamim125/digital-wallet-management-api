@@ -32,12 +32,12 @@ router.get(
   UserControllers.getAgentDashboard
 );
 
-// // Admin-specific routes
-// router.get(
-//   "/admin-overview",
-//   checkAuth(Role.ADMIN),
-//   UserControllers.getAminDashboard
-// );
+// Admin-specific routes
+router.get(
+  "/admin-overview",
+  checkAuth(Role.ADMIN),
+  UserControllers.getAdminDashboard
+);
 router.get(
   "/all-users",
   checkAuth(...Object.values(Role)),

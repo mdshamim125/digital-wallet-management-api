@@ -123,6 +123,19 @@ const getAgentDashboard = catchAsync(
   }
 );
 
+const getAdminDashboard = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const dashboardData = await UserServices.getAdminDashboard();
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Admin dashboard data fetched",
+      data: dashboardData,
+    });
+  }
+);
+
 export const UserControllers = {
   createUser,
   updateStatus,
@@ -132,4 +145,5 @@ export const UserControllers = {
   updateMe,
   getUserDashboard,
   getAgentDashboard,
+  getAdminDashboard,
 };

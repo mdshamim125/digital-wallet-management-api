@@ -285,6 +285,61 @@ const getAgentDashboard = async (agentId: string) => {
   };
 };
 
+const getAdminDashboard = async () => {
+  // Count users
+  const totalUsers = await User.countDocuments({ role: "user" });
+
+  // Count agents
+  const totalAgents = await User.countDocuments({ role: "agent" });
+
+  // Count all transactions
+  const totalTransactions = await Transaction.countDocuments();
+
+  // Sum transaction volume
+  const totalVolumeAgg = await Transaction.aggregate([
+    { $match: { status: "completed" } },
+    { $group: { _id: null, totalVolume: { $sum: "$amount" } } },
+  ]);
+
+  const totalVolume =
+    totalVolumeAgg.length > 0 ? totalVolumeAgg[0].totalVolume : 0;
+
+  // Weekly stats for transactions & volume
+  const weeklyStats = await Transaction.aggregate([
+    {
+      $match: { status: "completed" },
+    },
+    {
+      $group: {
+        _id: {
+          $dateTrunc: { date: "$createdAt", unit: "week", binSize: 1 },
+        },
+        weeklyTransactions: { $sum: 1 },
+        weeklyVolume: { $sum: "$amount" },
+      },
+    },
+    {
+      $sort: { _id: 1 }, // oldest → latest
+    },
+    {
+      $project: {
+        week: "$_id",
+        weeklyTransactions: 1,
+        weeklyVolume: 1,
+        _id: 0,
+      },
+    },
+  ]);
+
+  return {
+    totalUsers,
+    totalAgents,
+    totalTransactions,
+    totalVolume,
+    weeklyStats, // send to frontend for charts
+  };
+};
+
 export const UserServices = {
   createUser,
   updateStatus,
@@ -294,4 +349,5 @@ export const UserServices = {
   updateMe,
   getUserDashboard,
   getAgentDashboard,
+  getAdminDashboard,
 };
