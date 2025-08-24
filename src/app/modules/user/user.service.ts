@@ -2,7 +2,6 @@
 
 import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
-import { Wallet } from "../wallet/wallet.model";
 import {
   AgentStatus,
   IAuthProvider,
@@ -15,6 +14,9 @@ import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
 import { WalletStatus } from "../wallet/wallet.interface";
 import { JwtPayload } from "jsonwebtoken";
+import { Transaction } from "../transaction/transaction.model";
+import { Wallet } from "../wallet/wallet.model";
+import mongoose from "mongoose";
 
 const createUser = async (payload: Partial<IUser>) => {
   const session = await User.startSession();
@@ -212,6 +214,35 @@ const updateMe = async (
   return user;
 };
 
+const getUserDashboard = async (userId: string) => {
+  const objectId = new mongoose.Types.ObjectId(userId);
+
+  // Get wallet
+  const wallet = await Wallet.findOne({ user: objectId });
+  // console.log("Wallet:", wallet);
+
+  // Get recent transactions
+  const transactions = await Transaction.find({
+    $or: [{ from: objectId }, { to: objectId }],
+  })
+    .sort({ createdAt: -1 })
+    .limit(10);
+
+  // console.log("transactions:", transactions);
+
+  const quickActions = [
+    { label: "Deposit Money", action: "/user/deposit" },
+    { label: "Send Money", action: "/user/send-money" },
+    { label: "Withdraw", action: "/user/withdraw" },
+  ];
+
+  return {
+    walletBalance: wallet ? wallet.balance : 0,
+    quickActions,
+    recentTransactions: transactions,
+  };
+};
+
 export const UserServices = {
   createUser,
   updateStatus,
@@ -219,4 +250,5 @@ export const UserServices = {
   getMe,
   getSingleUser,
   updateMe,
+  getUserDashboard,
 };

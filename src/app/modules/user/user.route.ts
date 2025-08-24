@@ -21,7 +21,23 @@ router.patch(
   UserControllers.updateMe
 );
 
-// Admin-specific routes
+router.get(
+  "/user-overview",
+  checkAuth(Role.USER),
+  UserControllers.getUserDashboard
+);
+// router.get(
+//   "/agent-overview",
+//   checkAuth(Role.AGENT),
+//   UserControllers.getAgentDashboard
+// );
+
+// // Admin-specific routes
+// router.get(
+//   "/admin-overview",
+//   checkAuth(Role.ADMIN),
+//   UserControllers.getAminDashboard
+// );
 router.get(
   "/all-users",
   checkAuth(...Object.values(Role)),

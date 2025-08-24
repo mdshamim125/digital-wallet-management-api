@@ -78,7 +78,7 @@ const getSingleUser = catchAsync(
 const updateMe = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const verifiedToken = req.user;
-// console.log(req.body);
+    // console.log(req.body);
     const payload = req.body;
     const user = await UserServices.updateMe(
       payload,
@@ -94,6 +94,21 @@ const updateMe = catchAsync(
   }
 );
 
+const getUserDashboard = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user.userId;
+    // console.log(userId);
+    const result = await UserServices.getUserDashboard(userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "User dashboard data fetched",
+      data: result,
+    });
+  }
+);
+
 export const UserControllers = {
   createUser,
   updateStatus,
@@ -101,4 +116,5 @@ export const UserControllers = {
   getMe,
   getSingleUser,
   updateMe,
+  getUserDashboard,
 };
