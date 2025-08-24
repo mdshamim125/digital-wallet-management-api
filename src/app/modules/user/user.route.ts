@@ -26,11 +26,11 @@ router.get(
   checkAuth(Role.USER),
   UserControllers.getUserDashboard
 );
-// router.get(
-//   "/agent-overview",
-//   checkAuth(Role.AGENT),
-//   UserControllers.getAgentDashboard
-// );
+router.get(
+  "/agent-overview",
+  checkAuth(Role.AGENT),
+  UserControllers.getAgentDashboard
+);
 
 // // Admin-specific routes
 // router.get(

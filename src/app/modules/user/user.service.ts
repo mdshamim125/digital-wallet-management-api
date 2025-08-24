@@ -243,6 +243,48 @@ const getUserDashboard = async (userId: string) => {
   };
 };
 
+const getAgentDashboard = async (agentId: string) => {
+  const objectId = new mongoose.Types.ObjectId(agentId);
+
+  // Get agent wallet
+  const wallet = await Wallet.findOne({ user: objectId });
+
+  // Recent activity: transactions where this agent acted
+  const recentActivity = await Transaction.find({
+    $or: [{ from: objectId }, { to: objectId }],
+  })
+    .sort({ createdAt: -1 })
+    .limit(10);
+  // Cash In: transactions where agent is receiver (cash-in / add_money)
+  // Cash-in (money received by agent)
+  const cashInTotalResult = await Transaction.aggregate([
+    {
+      $match: { to: new mongoose.Types.ObjectId(agentId), status: "completed" },
+    },
+    { $group: { _id: null, total: { $sum: "$amount" } } },
+  ]);
+
+  // Cash-out (money sent by agent)
+  const cashOutTotalResult = await Transaction.aggregate([
+    {
+      $match: {
+        from: new mongoose.Types.ObjectId(agentId),
+        status: "completed",
+      },
+    },
+    { $group: { _id: null, total: { $sum: "$amount" } } },
+  ]);
+
+  // console.log(cashInTotalResult);
+
+  return {
+    walletBalance: wallet?.balance || 0,
+    cashInTotal: cashInTotalResult[0]?.total || 0,
+    cashOutTotal: cashOutTotalResult[0]?.total || 0,
+    recentActivity,
+  };
+};
+
 export const UserServices = {
   createUser,
   updateStatus,
@@ -251,4 +293,5 @@ export const UserServices = {
   getSingleUser,
   updateMe,
   getUserDashboard,
+  getAgentDashboard,
 };

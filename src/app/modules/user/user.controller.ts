@@ -109,6 +109,20 @@ const getUserDashboard = catchAsync(
   }
 );
 
+const getAgentDashboard = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const agentId = req.user.userId;
+    const dashboardData = await UserServices.getAgentDashboard(agentId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Agent dashboard data fetched",
+      data: dashboardData,
+    });
+  }
+);
+
 export const UserControllers = {
   createUser,
   updateStatus,
@@ -117,4 +131,5 @@ export const UserControllers = {
   getSingleUser,
   updateMe,
   getUserDashboard,
+  getAgentDashboard,
 };
