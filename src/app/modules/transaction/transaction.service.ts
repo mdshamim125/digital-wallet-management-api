@@ -433,7 +433,9 @@ const sendMoney = async (from: string, to: string, amount: number) => {
   return transaction;
 };
 
-// const getTransactionHistory = async (id: string) => {
+// const getTransactionHistory = async ( id: string,
+//   role: string,
+//   query: Record<string, any>) => {
 //   if (!id) {
 //     throw new AppError(httpStatus.BAD_REQUEST, "User ID is required");
 //   }
@@ -449,23 +451,24 @@ const sendMoney = async (from: string, to: string, amount: number) => {
 //     );
 //   }
 
-//   const transactions = await Transaction.find({
+//   // base query
+//   const baseQuery = Transaction.find({
 //     $or: [{ from: id }, { to: id }],
 //   }).sort({ createdAt: -1 });
 
-//   if (!transactions || transactions.length === 0) {
-//     throw new AppError(
-//       httpStatus.NOT_FOUND,
-//       "No transactions found for this user"
-//     );
-//   }
+//   // apply only pagination
+//   const qb = new QueryBuilder(baseQuery, query).paginate();
+//   const transactions = await qb.build();
+//   const meta = await qb.getMeta();
 
-//   return transactions;
+//   return { meta, transactions };
 // };
 
-const getTransactionHistory = async ( id: string,
+const getTransactionHistory = async (
+  id: string,
   role: string,
-  query: Record<string, any>) => {
+  query: Record<string, any>
+) => {
   if (!id) {
     throw new AppError(httpStatus.BAD_REQUEST, "User ID is required");
   }
@@ -474,6 +477,7 @@ const getTransactionHistory = async ( id: string,
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
+
   if (user.role !== "user" && user.role !== "agent") {
     throw new AppError(
       httpStatus.FORBIDDEN,
@@ -481,19 +485,22 @@ const getTransactionHistory = async ( id: string,
     );
   }
 
-  // base query
+  // base query (transactions where user is sender or receiver)
   const baseQuery = Transaction.find({
     $or: [{ from: id }, { to: id }],
-  }).sort({ createdAt: -1 });
+  });
 
-  // apply only pagination
-  const qb = new QueryBuilder(baseQuery, query).paginate();
+  // build with QueryBuilder (filter + paginate)
+  const qb = new QueryBuilder(baseQuery, query)
+    .filter() // ✅ type + status + amount + date range (startDate/endDate)
+    .sort() // ✅ default: -createdAt, or custom via ?sort=amount
+    .paginate();
+
   const transactions = await qb.build();
   const meta = await qb.getMeta();
 
   return { meta, transactions };
 };
-
 
 export const TransactionServices = {
   cashIn,

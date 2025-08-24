@@ -22,6 +22,12 @@ router.post(
   TransactionControllers.sendMoney
 );
 
+router.get(
+  "/transactions",
+  checkAuth(Role.USER, Role.AGENT),
+  TransactionControllers.getTransactionHistory
+);
+
 // router.get(
 //   "/by-user",
 //   checkAuth(Role.USER),
@@ -31,11 +37,6 @@ router.post(
 // Agent-specific routes
 router.post("/cash-in", checkAuth(Role.AGENT), TransactionControllers.cashIn);
 router.post("/cash-out", checkAuth(Role.AGENT), TransactionControllers.cashOut);
-router.get(
-  "/transactions",
-  checkAuth(Role.AGENT),
-  TransactionControllers.getTransactionHistory
-);
 
 //Admin-specific routes
 router.get(

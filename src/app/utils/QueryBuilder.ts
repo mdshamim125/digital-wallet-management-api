@@ -13,6 +13,37 @@ export class QueryBuilder<T> {
   }
 
   // Filter method handles type, status, min/max amounts, and excludes unnecessary fields
+  // filter(): this {
+  //   const filter: Record<string, any> = { ...this.query };
+
+  //   // Remove excluded fields
+  //   for (const field of excludeField) {
+  //     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+  //     delete filter[field];
+  //   }
+
+  //   // Handle minAmount / maxAmount
+  //   if (filter.minAmount || filter.maxAmount) {
+  //     filter.amount = {};
+  //     if (filter.minAmount) {
+  //       filter.amount.$gte = Number(filter.minAmount);
+  //       delete filter.minAmount;
+  //     }
+  //     if (filter.maxAmount) {
+  //       filter.amount.$lte = Number(filter.maxAmount);
+  //       delete filter.maxAmount;
+  //     }
+  //   }
+
+  //   // Only include type and status if they exist and are not "all"
+  //   if (filter.type === "all" || !filter.type) delete filter.type;
+  //   if (filter.status === "all" || !filter.status) delete filter.status;
+
+  //   this.modelQuery = this.modelQuery.find(filter);
+  //   return this;
+  // }
+
+  // Filter method handles type, status, min/max amounts, date range, and excludes unnecessary fields
   filter(): this {
     const filter: Record<string, any> = { ...this.query };
 
@@ -32,6 +63,28 @@ export class QueryBuilder<T> {
       if (filter.maxAmount) {
         filter.amount.$lte = Number(filter.maxAmount);
         delete filter.maxAmount;
+      }
+    }
+
+    // Handle date range (startDate / endDate)
+
+    if (filter.startDate || filter.endDate) {
+      filter.createdAt = {};
+
+      if (filter.startDate) {
+        // Beginning of the day (00:00:00)
+        const start = new Date(filter.startDate);
+        start.setHours(0, 0, 0, 0);
+        filter.createdAt.$gte = start;
+        delete filter.startDate;
+      }
+
+      if (filter.endDate) {
+        // End of the day (23:59:59)
+        const end = new Date(filter.endDate);
+        end.setHours(23, 59, 59, 999);
+        filter.createdAt.$lte = end;
+        delete filter.endDate;
       }
     }
 
